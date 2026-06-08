@@ -100,6 +100,7 @@ def get_weather_description_ru(description):
 def get_wind_direction(degrees):
     if degrees is None:
         return "N/A"
+        
     directions = [
         ("С", 0, 22.5), ("СВ", 22.5, 67.5), ("В", 67.5, 112.5),
         ("ЮВ", 112.5, 157.5), ("Ю", 157.5, 202.5), ("ЮЗ", 202.5, 247.5),
@@ -108,21 +109,18 @@ def get_wind_direction(degrees):
     for direction, start, end in directions:
         if start <= degrees < end:
             return direction
+            
     return "С"
 
 
 # Функция обновления отображения погоды
 def update_display(data):
     global current_icon
-
-    # Основные данные
     temp = data["main"]["temp"]
     feels_like = data["main"]["feels_like"]
     description = data["weather"][0]["description"]
     icon_code = data["weather"][0]["icon"]
     city_name = data["name"]
-
-    # Дополнительные данные
     pressure = data["main"]["pressure"]
     humidity = data["main"]["humidity"]
     visibility = data.get("visibility", 0) / 1000
@@ -131,31 +129,18 @@ def update_display(data):
     clouds = data["clouds"]["all"]
     sunrise = data["sys"]["sunrise"]
     sunset = data["sys"]["sunset"]
-
-    # Преобразование времени
     sunrise_time = datetime.fromtimestamp(sunrise).strftime("%H:%M")
     sunset_time = datetime.fromtimestamp(sunset).strftime("%H:%M")
-
-    # Преобразование давления из гПа в мм рт. ст.
     pressure_mm = int(pressure * 0.75006)
-
-    # Получение направления ветра
     wind_dir = get_wind_direction(wind_deg)
-
-    # Получение описания на русском
     desc_ru = get_weather_description_ru(description)
-
-    # Загрузка иконки
     icon_img = load_weather_icon(icon_code)
     if icon_img:
         icon_label.config(image = current_icon)
-
-    # Обновление меток
     winmain.title(f"Погода - {city_name}")
     temp_label.config(text = f"{temp:.1f}°C")
     feels_label.config(text = f"Ощущается: {feels_like:.1f}°C")
     description_label.config(text = f"{desc_ru}")
-
     pressure_label.config(text = f"{pressure_mm} мм рт. ст.")
     humidity_label.config(text = f"{humidity}%")
     visibility_label.config(text = f"{visibility:.1f} км")
@@ -173,6 +158,7 @@ def save_api_key():
     if not api_key:
         messagebox.showwarning("Внимание", "Введите API ключ!")
         return False
+        
     messagebox.showinfo("Успех", "API ключ сохранён!")
     settings_window.destroy()
     return True
@@ -181,35 +167,23 @@ def save_api_key():
 # Функция открытия окна настроек
 def open_settings():
     global settings_window, api_entry
-
     settings_window = tk.Toplevel(winmain)
     settings_window.title("Настройки")
     settings_window.geometry("400x200")
     settings_window.resizable(False, False)
     settings_window.grab_set()
-
-    # Основной фрейм
     settings_frame = ttk.Frame(settings_window, padding = "20")
     settings_frame.pack(fill = "both", expand = True)
-
     ttk.Label(settings_frame, text = "OpenWeatherMap API", font = ("Segoe UI", 14, "bold")).pack(pady = (0, 15))
     ttk.Label(settings_frame, text = "Введите ваш API ключ:", font = ("Segoe UI", 10)).pack(anchor = "w")
-
     api_entry = ttk.Entry(settings_frame, font = ("Segoe UI", 10), width = 40)
     api_entry.pack(fill = "x", pady = (5, 15))
-
-    # Вставка существующего ключа если есть
     if api_key:
         api_entry.insert(0, api_key)
-
-    # Кнопки
     btn_frame = ttk.Frame(settings_frame)
     btn_frame.pack(fill = "x", pady = (10, 0))
-
     ttk.Button(btn_frame, text = "Сохранить", command = save_api_key).pack(side = "left", padx = 5)
     ttk.Button(btn_frame, text = "Отмена", command = settings_window.destroy).pack(side = "left", padx = 5)
-
-    # Ссылка на регистрацию
     link_label = ttk.Label(
         settings_frame,
         text = "Нет ключа? Зарегистрируйтесь на openweathermap.org",
